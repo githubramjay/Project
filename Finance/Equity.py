@@ -38,13 +38,17 @@ class Equity:
         return float(sum(values)/len(values))
     def genCall(self, expiry, strike):
         extrapolated_price = self.extrapolate(expiry)
+        dol = fin.Currency('USD')
+        r = float(dol.get_rate())/100
         print(extrapolated_price)
         values = [extrapolated_price - strike, 0]
-        return {'call':self.NAME, 'value':max(values)}
+        return {'call':self.NAME, 'value':exp(-r*expiry)*max(values)}
     def genPut(self, expiry, strike):
         extrapolated_price = self.extrapolate(expiry)
+        dol = fin.Currency('USD')
+        r = float(dol.get_rate())/100
         values = [strike - extrapolated_price, 0]
-        return {'put':self.NAME, 'value':max(values)}
+        return {'put':self.NAME, 'value':exp(-r*expiry)*max(values)}
 
 if __name__ == '__main__':
     one = Equity()
