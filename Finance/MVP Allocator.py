@@ -5,6 +5,10 @@ TODO: 1. Develop runner using yahoo finance to retrieve market data
       4. Try to configure in AWS Lambda space to retrieve voice commands
       5. Build ML user-interaction cluster recognition algorithm
 '''
+
+from Equity import Equity
+from Portolio import Portfolio
+
 def main():
     print('TODO: is necessary')
 
