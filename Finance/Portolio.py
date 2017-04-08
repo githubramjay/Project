@@ -1,5 +1,6 @@
 import numpy
 from Equity import Equity
+import yahoo_finance as fin
 
 #Minimum Variance Portfolio Allocation
 class Portfolio:
@@ -54,10 +55,26 @@ class Portfolio:
         self.Risk = weights.dot(covariance).dot(weights.transpose())[0,0]**.5
     def __str__(self):
         return positions.__str__() + ' Return: ' + str(self.Return) + ' Risk: ' + str(self.Risk)
+    def basket(self):
+        pass
 
 if __name__ == '__main__':
-    a = Equity('AAPL', [10,20,30,40,50])
-    b = Equity('MSFT', [20,10,50,20,80])
-    p = Portfolio((a,b))
+    gstock = fin.Share('GOOG')
+    ghist = gstock.get_historical('2017-01-07', '2017-04-07')
+    gprices = [p['Close'] for p in ghist]
+    astock = fin.Share('AAPL')
+    ahist = astock.get_historical('2017-01-07', '2017-04-07')
+    aprices = [p['Close'] for p in ahist]
+    mstock = fin.Share('MSFT')
+    mhist = mstock.get_historical('2017-01-07', '2017-04-07')
+    mprices = [p['Close'] for p in mhist]
+
+    google = Equity('GOOG', gprices)
+    apple = Equity('AAPL', aprices)
+    microsoft = Equity('MSFT', mprices)
+    p = Portfolio((google, apple, microsoft))
     p.allocate()
+    for x in p.equities:
+        print(x)
+        print(x.PRICES)
     print(p)

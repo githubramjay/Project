@@ -14,7 +14,7 @@ class Equity:
         if len(self.PRICES) > 1:
             self.genData()
     def __str__(self):
-        return str(self.NAME + ': Return - ' + str(self.RETURN) + ' Risk - ' +
+        return str(self.NAME + ' - Return: ' + str(self.RETURN) + ' Risk: ' +
             str(self.VAR**.5))
     def genData(self):
         prices = list(map(float, self.PRICES))
@@ -41,20 +41,19 @@ class Equity:
         print(extrapolated_price)
         values = [extrapolated_price - strike, 0]
         return {'call':self.NAME, 'value':max(values)}
-    def genPut(self, expiry, strike, IR):
+    def genPut(self, expiry, strike):
         extrapolated_price = self.extrapolate(expiry)
         values = [strike - extrapolated_price, 0]
-        return {'Put':self.NAME, 'value':max(values)}
+        return {'put':self.NAME, 'value':max(values)}
 
 if __name__ == '__main__':
     one = Equity()
     two = Equity('AAPL')
     stock = fin.Share('GOOG')
-    gprices = []
-    for _ in range(10):
-        gprices.append(stock.get_price())
-        time.sleep(10)
+    hist = stock.get_historical('2017-01-07', '2017-04-07')
+    gprices = [p['Close'] for p in hist]
     three = Equity('GOOG', gprices)
     print(one)
     print(two)
-    print(three.genCall(.5,700))
+    print(three)
+    print(three.genPut(.5,900))
