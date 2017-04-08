@@ -23,7 +23,7 @@ class Equity:
             self.RETURNS.append((x[1]-x[0])/x[0])
         self.RETURN = numpy.average(self.RETURNS)
         self.VAR = numpy.var(self.RETURNS)
-    def extrapolate(self, expiry):
+    def extrapolate(self, time):
         stochastic = [numpy.random.normal() for _ in range(1000000)]
         stock = fin.Share(self.NAME)
         S = stock.get_price()
@@ -33,22 +33,35 @@ class Equity:
         for x in stochastic:
             A = r - float(self.VAR/2)
             sig = self.VAR**.5
-            out = float(S)*exp(A*expiry - sig*sqrt(expiry)*x)
+            out = float(S)*exp(A*time - sig*sqrt(time)*x)
             values.append(out)
         return float(sum(values)/len(values))
     def genCall(self, expiry, strike):
-        extrapolated_price = self.extrapolate(expiry)
+        stochastic = [numpy.random.normal() for _ in range(1000000)]
+        stock = fin.Share(self.NAME)
+        S = stock.get_price()
         dol = fin.Currency('USD')
         r = float(dol.get_rate())/100
-        print(extrapolated_price)
-        values = [extrapolated_price - strike, 0]
-        return {'call':self.NAME, 'value':exp(-r*expiry)*max(values)}
+        values = []
+        for x in stochastic:
+            A = r - float(self.VAR/2)
+            sig = self.VAR**.5
+            out = [float(S)*exp(A*expiry - sig*sqrt(expiry)*x) - strike, 0]
+            values.append(max(out))
+        return {'call':self.NAME, 'price':exp(-r*expiry)*numpy.mean(values)}
     def genPut(self, expiry, strike):
-        extrapolated_price = self.extrapolate(expiry)
+        stochastic = [numpy.random.normal() for _ in range(1000000)]
+        stock = fin.Share(self.NAME)
+        S = stock.get_price()
         dol = fin.Currency('USD')
         r = float(dol.get_rate())/100
-        values = [strike - extrapolated_price, 0]
-        return {'put':self.NAME, 'value':exp(-r*expiry)*max(values)}
+        values = []
+        for x in stochastic:
+            A = r - float(self.VAR/2)
+            sig = self.VAR**.5
+            out = [strike - float(S)*exp(A*expiry - sig*sqrt(expiry)*x), 0]
+            values.append(max(out))
+        return {'put':self.NAME, 'price':exp(-r*expiry)*numpy.mean(values)}
 
 if __name__ == '__main__':
     one = Equity()
